@@ -2,7 +2,8 @@
 #define SYSTEM_TOOLS_H
 
 //Mouse Positioning
-float MousePosX = 0, *MousePtrX = &MousePosX, MousePosY = 0, *MousePtrY = &MousePosY; float MousePrevX; float MousePrevY;
+float MousePosX = 0, MousePosY = 0;
+float *MousePtrX = &MousePosX, *MousePtrY = &MousePosY; float MousePrevX; float MousePrevY;
 
 void Collect_Time_Data(float& Delta_Time, float& Elapsed_Time, int& Current_FPS)
 {
@@ -30,4 +31,10 @@ bool Pause_Function(float& Time_Left, float Delta_Time)
  if(Time_Left > 0) return false;
  else return true;
 }
+
+float Calc_Distance(float X1, float Y1, float X2, float Y2)
+{
+ return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2));
+}
+
 #endif

@@ -9,14 +9,14 @@ void Load_HGEINI()
 {
   hge = hgeCreate(HGE_VERSION);
   hge->System_SetState(HGE_LOGFILE, "LogFile.txt");
-  hge->System_SetState(HGE_TITLE, "Project Struggle - Alpha");
+  hge->System_SetState(HGE_TITLE, "Project MadHouse - Alpha");
   hge->System_SetState(HGE_WINDOWED, true);
   hge->System_SetState(HGE_SCREENWIDTH, Screen_Width);
   hge->System_SetState(HGE_SCREENHEIGHT, Screen_Height);
   hge->System_SetState(HGE_SCREENBPP, 32);
   hge->System_SetState(HGE_SHOWSPLASH, false);
   hge->System_SetState(HGE_HIDEMOUSE, false);
-  hge->System_SetState(HGE_FPS, 30);
+  hge->System_SetState(HGE_FPS, 60);
 }
 
 //RESOURCE FUNCTIONS-----------------------------------------------------------------------------------------------------
