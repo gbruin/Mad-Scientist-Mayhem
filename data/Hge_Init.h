@@ -15,7 +15,7 @@ void Load_HGEINI()
   hge->System_SetState(HGE_SCREENHEIGHT, Screen_Height);
   hge->System_SetState(HGE_SCREENBPP, 32);
   hge->System_SetState(HGE_SHOWSPLASH, false);
-  hge->System_SetState(HGE_HIDEMOUSE, true);
+  hge->System_SetState(HGE_HIDEMOUSE, false);
   hge->System_SetState(HGE_FPS, 30);
 }
 

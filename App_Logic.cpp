@@ -29,14 +29,15 @@ hgeSprite* Spr_BrushedMetal;
 #include "data\\Mouse_Array.h"
 
 //Class Data Declarations
-Mouse_Array MouseArray;
+Mouse_Array* MouseArray;
 
 bool FrameFunc()
 {
  hge->Input_GetMousePos(MousePtrX, MousePtrY);
  if(hge->Input_GetKeyState(HGEK_LBUTTON))
   {
-   MouseArray.add_position(MousePosX, MousePosY);
+   cout << "Function enter \n";
+   MouseArray->add_position(MousePosX, MousePosY, 15);
   }
  if(hge->Input_GetKeyState(HGEK_ESCAPE)) return true;
  return false;
@@ -52,8 +53,9 @@ bool RenderFunc()
  {
   for(int i = 0; i < array_size; i++)
    {
-    Ariel_Font->printf(5, 5+ 20*i, HGETEXT_LEFT, "%.3f %.3f %.3f %i", MouseArray.Pos_Array[i].x_pos, MouseArray.Pos_Array[i].y_pos, MouseArray.Pos_Array[i].lifetime, MouseArray.Pos_Array[i].in_use);
+    Ariel_Font->printf(5, 5+ 20*i, HGETEXT_LEFT, "%.3f %.3f %.3f %i", MouseArray->Pos_Array[i].x_pos, MouseArray->Pos_Array[i].y_pos, MouseArray->Pos_Array[i].lifetime, MouseArray->Pos_Array[i].in_use);
    }
+  Ariel_Font->printf(1024, 5, HGETEXT_RIGHT, "%.3f %.3f Total Position Adds: %i", MousePosX, MousePosY);
  }
  hge->Gfx_EndScene();
  return false;
@@ -68,6 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
   if(hge->System_Initiate())
    {
     //Load system resources
+    MouseArray = new Mouse_Array();
     Load_Fonts(Ariel_Font, "fonts\\arial.fnt", 0xFFFFFFFF);
     Load_Graphic(Tex_BrushedMetal, "gfx\\Brushed Metal.jpg", Spr_BrushedMetal,  1024, 768);
     hge->System_Start();
