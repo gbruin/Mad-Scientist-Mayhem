@@ -1,16 +1,16 @@
 #define bolt_length 256
 #define height_step .01
 
-
 class Lightning
 {
  public:
   Point* point;
   int length;
   
-  Lightning(Telsa_Coil coil);
+  Lightning(/*Telsa_Coil coil*/);
   ~Lightning();
   void update();
+  bool isdead();
   
  private:
   float height;
@@ -18,15 +18,22 @@ class Lightning
   Telsa_Coil sticky;
 };
 
-Lightning::Lightning(Telsa_Coil coil) : length(bolt_length), height(0), sticky(coil)
+Lightning::Lightning(/*Telsa_Coil coil*/) : length(bolt_length), height(0)//, sticky(coil)
 {
   point = new Point[bolt_length];
+  
   // Stick the first point to the coil
-  point[0].x = sticky.pos;
+  point[0].x = .2;
+  //point[0].x = sticky.pos;
+  
   // Stick the last point to the other coil
-  point[length-1].x = 1 - sticky.pos;
+  point[length-1].x = .8;
+  //point[length-1].x = 1 - sticky.pos;
+  
   // Start at height = 0
   point[0].y = point[length-1].y = 0;
+  
+  // Do the initial update to fill in the middle points
   update();
 }
 
@@ -35,14 +42,19 @@ Lightning::~Lightning()
   delete[] point;
 }
 
+bool Lightning::isdead()
+{
+     return height > .999;
+}
+
 void Lightning::update()
 {
-  // Move the rod up
+  // Move the bolt up
   point[0].y += height; // Left rod
   
-  // Case touched
+  // Case: touched
   
-  // Case untouched
+  // Case: untouched, move the other end of the bolt up
   point[length-1].y += height;
   
   // Update all the points in between
