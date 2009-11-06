@@ -30,6 +30,12 @@ hgeParticleSystem* Par_WeldParticles;
 #include "data\\Buttons.h"
 #include "data\\Mouse_Array.h"
 #include "data\\BurnRender.h"
+#include "data\\Point.h"
+#include "data\\Tesla_Coil.h"
+#include "data\\Lightning.h"
+
+
+
 
 //Class Data Declarations
 Mouse_Array* MouseArray;

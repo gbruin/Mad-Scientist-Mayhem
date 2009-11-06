@@ -22,7 +22,7 @@ class Mouse_Array
   void purge();
 };
 
-Mouse_Array::Mouse_Array() 
+Mouse_Array::Mouse_Array()
 {
  top_queue = 0;    //Start the stack at 0.
  cur_position = 0; //The top of the stack, add new entries from here.
