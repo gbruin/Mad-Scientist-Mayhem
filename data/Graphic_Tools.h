@@ -1,24 +1,24 @@
 #ifndef GRAPHIC_TOOLS_H
 #define GRAPHIC_TOOLS_H
 
-void Fade_down(hgeSprite* Fade_Sprite, unsigned int Fade_Down)   //Fades towards Transparency
+void Fade_down(hgeSprite* Fade_Sprite, unsigned int Fade_Down, int Lowest_Val = 0)   //Fades towards Transparency
 {
  unsigned int Cur_Color = Fade_Sprite->GetColor();                         //Gets the current Color
  unsigned int Cur_Alpha = GETA(Cur_Color);                                 //Extract the Alpha term in the DWORD
  //Do a check to make sure it doesn't loop over
  if(Cur_Alpha > Fade_Down) Cur_Alpha = Cur_Alpha - Fade_Down;
- else                       Cur_Alpha = 0;
+ else                      Cur_Alpha = Lowest_Val;
  Cur_Color = SETA(Cur_Color, Cur_Alpha);                                   //Replace the Alpha term with the new Alpha term
  Fade_Sprite->SetColor(Cur_Color);                                         //Set the new color of the Sprite
 }
 
-void Fade_up(hgeSprite* Fade_Sprite, unsigned int Fade_Up)       //Fades towards Obsurity
+void Fade_up(hgeSprite* Fade_Sprite, unsigned int Fade_Up, int Highest_Val = 255)       //Fades towards Obsurity
 {
  unsigned int Cur_Color = Fade_Sprite->GetColor();                         //Gets the current Color
  unsigned int Cur_Alpha = GETA(Cur_Color);                                 //Extract the Alpha term in the DWORD
  //Do a check to make sure it doesn't loop over
- if(255 - Cur_Alpha > Fade_Up) Cur_Alpha = Cur_Alpha + Fade_Up;
- else                          Cur_Alpha = 255;
+ if(Highest_Val - Cur_Alpha > Fade_Up) Cur_Alpha = Cur_Alpha + Fade_Up;
+ else                         Cur_Alpha = Highest_Val;
  Cur_Color = SETA(Cur_Color, Cur_Alpha);                                   //Replace the Alpha term with the new Alpha term
  Fade_Sprite->SetColor(Cur_Color);                                         //Set the new color of the Sprite
 }

@@ -48,6 +48,7 @@ void RenderBurn(hgeSprite* Spr_Burn, Mouse_Array* Burn_Positions)
   }
 }
 */
+#define OFFSET -50.0
 float X1;
 float Y1;
 float X2;
@@ -58,99 +59,105 @@ float pX2 = 0.0;
 float pY2 = 0.0;
 float prev_X = 0.0;
 float prev_Y = 0.0;
-#define NPOS 255
 float xposes[NPOS];
 float yposes[NPOS];
 bool initialized_positions = false;
 int index = 0;
 void RenderXLine(hgeSprite* Spr_Burn, float x1, float y1, float x2, float y2)
 {
-     if(x2 <= x1)
-     {
-           float x3;
-           x3 = x1; x1 = x2; x2 = x3;
-           float y3;
-           y3 = y1; y1 = y2; y2 = y3;
-     }
-     for(float cx = x1; cx < x2; cx += 1.0)
-     {
-               float slope;
-               slope = (y2 - y1) / (x2 - x1);
-               float cy;
-               cy = (cx - x1) * slope + y1;
-               Spr_Burn->Render(cx, cy);
-     }
+ if(x2 <= x1)
+  {
+   float x3;
+   x3 = x1; x1 = x2; x2 = x3;
+   float y3;
+   y3 = y1; y1 = y2; y2 = y3;
+  }
+ for(float cx = x1; cx < x2; cx += 1.0)
+  {
+   float slope;
+   slope = (y2 - y1) / (x2 - x1);
+   float cy;
+   cy = (cx - x1) * slope + y1;
+   Spr_Burn->Render(cx, cy);
+  }
 }
 void RenderYLine(hgeSprite* Spr_Burn, float x1, float y1, float x2, float y2)
 {
-     if(y2 <= y1)
-     {
-           float x3;
-           x3 = x1; x1 = x2; x2 = x3;
-           float y3;
-           y3 = y1; y1 = y2; y2 = y3;
-     }
-     for(float cy = y1; cy < y2; cy += 1.0)
-     {
-               float slope;
-               slope = (x2 - x1) / (y2 - y1);
-               float cx;
-               cx = (cy - y1) * slope + x1;
-               Spr_Burn->Render(cx, cy);
-     }
+ if(y2 <= y1)
+ {
+   float x3;
+   x3 = x1; x1 = x2; x2 = x3;
+   float y3;
+   y3 = y1; y1 = y2; y2 = y3;
+ }
+ for(float cy = y1; cy < y2; cy += 1.0)
+ {
+   float slope;
+   slope = (x2 - x1) / (y2 - y1);
+   float cx;
+   cx = (cy - y1) * slope + x1;
+   Spr_Burn->Render(cx, cy);
+ }
 }
 void RenderLine(hgeSprite* Spr_Burn, float x1, float y1, float x2, float y2)
 {
-     if(x1 == -1.0 || y1 == -1.0)
+     if(x1 == OFFSET || y1 == OFFSET)
      {
-           Spr_Burn->Render(x2, y2);
-           return;
-           }
-     if(x2 == -1.0 || y2 == -1.0)
+      Spr_Burn->Render(x2, y2);
+      return;
+     }
+     if(x2 == OFFSET || y2 == OFFSET)
      {
-           Spr_Burn->Render(x1, y1);
-           return;
-           }
-     if(abs(x2-x1) > abs(y2-y1))
-                   RenderXLine(Spr_Burn, x1, y1, x2, y2);
-     else
-                   RenderYLine(Spr_Burn, x1, y1, x2, y2);
+      Spr_Burn->Render(x1, y1);
+      return;
+     }
+     if(abs(x2-x1) > abs(y2-y1)) 
+      {
+       RenderXLine(Spr_Burn, x1, y1, x2, y2);
+      }
+     else                        
+      {
+       RenderYLine(Spr_Burn, x1, y1, x2, y2);
+      }
 }
-void RenderBurn(hgeSprite* Spr_Burn, Mouse_Array* Burn_Positions)
+void RenderBurn(hgeSprite* Spr_Burn, Mouse_Array* Burn_Positions, bool Click)
 {
      if(!initialized_positions)
      {
-                               initialized_positions = true;
-                               xposes[0] = -1.0;
-                               yposes[0] = -1.0;
-                               xposes[NPOS-1] = -1.0;
-                               yposes[NPOS-1] = -1.0;
-                               }
+       initialized_positions = true;
+       for(int i = 0; i < NPOS; i++)
+       {
+        xposes[i] = OFFSET;
+        yposes[i] = OFFSET;
+       }
+     }
   float x;
   float y;
-  hge->Input_GetMousePos(&x, &y);
-  int prev_index;
-  prev_index = index;
-  index++;
-  if(index == NPOS)
+  if(Click) 
   {
-           index = 0;
-  }
+   hge->Input_GetMousePos(&x, &y);
+   int prev_index;
+   prev_index = index;
+   index++;
+   if(index == NPOS) {index = 0;}
   xposes[index] = x;
   yposes[index] = y;
-  xposes[index + 1 == NPOS ? 0 : index + 1] = -1.0;
-  yposes[index + 1 == NPOS ? 0 : index + 1] = -1.0;
+  xposes[index + 1 == NPOS ? 0 : index + 1] = OFFSET;
+  yposes[index + 1 == NPOS ? 0 : index + 1] = OFFSET;
+  }
   float x1;
   float y1;
-  x1 = -1.0;
-  y1 = -1.0;
+  x1 = OFFSET;
+  y1 = OFFSET;
+  //Drawing
   for(int i = 0; i < NPOS; i++)
   {
     //float x1 = xposes[prev_index];
     float x2 = xposes[i];
     //float y1 = yposes[prev_index];
     float y2 = yposes[i];
-    RenderLine(Spr_Burn, x1, y1, x2, y2);
+    if(Calc_Distance(x1, y1, x2, y2) < 150) RenderLine(Spr_Burn, x1, y1, x2, y2);
+    if(x2 != OFFSET && y2 != OFFSET) Par_MeltParticles[i]->FireAt(x1 + 20, y1 + 20);
     //prev_index = i;
     x1 = x2;
     y1 = y2;
