@@ -19,9 +19,10 @@ using namespace std;
 HGE* hge = 0;
 hgeFont* Ariel_Font;
 HTEXTURE   Tex_BrushedMetal; HTEXTURE   Tex_Scorch; HTEXTURE   Tex_Particles;
-hgeSprite* Spr_BrushedMetal; hgeSprite* Spr_Scorch; hgeSprite* Spr_WeldParticles;
+hgeSprite* Spr_BrushedMetal; hgeSprite* Spr_Scorch; hgeSprite* Spr_WeldParticles; hgeSprite* Spr_GlowParticles;
 
 hgeParticleSystem* Par_WeldParticles;
+hgeParticleSystem* Par_GlowParticles;
 
 //Custom
 #include "data\\Hge_Init.h"          //Includes prototype frame and render functions
@@ -47,13 +48,16 @@ bool FrameFunc()
  if(hge->Input_GetKeyState(HGEK_LBUTTON))
   {
    Par_WeldParticles->FireAt(MousePosX + 20, MousePosY + 20); //Slight offset
+   Par_GlowParticles->FireAt(MousePosX + 20, MousePosY + 20);
    MouseArray->add_position(MousePosX, MousePosY, 1505);
   }
  else
   {
-   Par_WeldParticles->Stop();                                    
+   Par_WeldParticles->Stop();                                
+   Par_GlowParticles->Stop();    
   }
  Par_WeldParticles->Update(delta_time);
+ Par_GlowParticles->Update(delta_time); 
  if(hge->Input_GetKeyState(HGEK_ESCAPE)) return true;
  MouseArray->update(delta_time);
  return false;
@@ -65,6 +69,7 @@ bool RenderFunc()
  hge->Gfx_Clear(0xFF000000);
  Spr_BrushedMetal->Render(0, 0);
  RenderBurn(Spr_Scorch, MouseArray);
+ Par_GlowParticles->Render();
  Par_WeldParticles->Render();
  //Debugging text checks
  if(false)
@@ -95,7 +100,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     Spr_WeldParticles = new hgeSprite(Tex_Particles, 64, 32, 32, 32);
     Spr_WeldParticles->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
     Spr_WeldParticles->SetHotSpot(16,16);
+    Spr_GlowParticles = new hgeSprite(Tex_Particles,  0,  0, 32, 32);
+    Spr_GlowParticles->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
+    Spr_GlowParticles->SetHotSpot(16,16);    
+    
     Par_WeldParticles = new hgeParticleSystem("gfx\\welding3.psi", Spr_WeldParticles);          
+    Par_GlowParticles = new hgeParticleSystem("gfx\\glow.psi"    , Spr_GlowParticles);
     
     Load_Fonts(Ariel_Font, "fonts\\arial.fnt", 0xFFFFFFFF);
     Load_Graphic(Tex_BrushedMetal, "gfx\\Brushed Metal.png", Spr_BrushedMetal,  1024, 768);
