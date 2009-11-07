@@ -61,6 +61,7 @@ float prev_X = 0.0;
 float prev_Y = 0.0;
 float xposes[NPOS];
 float yposes[NPOS];
+float fired[NPOS];
 bool initialized_positions = false;
 int index = 0;
 void RenderXLine(hgeSprite* Spr_Burn, float x1, float y1, float x2, float y2)
@@ -129,21 +130,27 @@ void RenderBurn(hgeSprite* Spr_Burn, Mouse_Array* Burn_Positions, bool Click)
        {
         xposes[i] = OFFSET;
         yposes[i] = OFFSET;
+        fired[i]  = -1;
        }
      }
   float x;
   float y;
   if(Click) 
   {
+   purge_timer = purgetime;
    hge->Input_GetMousePos(&x, &y);
    int prev_index;
    prev_index = index;
    index++;
-   if(index == NPOS) {index = 0;}
+   if(index == NPOS) //We've looped our memory space
+    {
+     index = 0;
+    }
   xposes[index] = x;
   yposes[index] = y;
   xposes[index + 1 == NPOS ? 0 : index + 1] = OFFSET;
   yposes[index + 1 == NPOS ? 0 : index + 1] = OFFSET;
+//  fired[index + 1 == NPOS ? 0 : index + 1]  = -1;
   }
   float x1;
   float y1;
@@ -156,8 +163,13 @@ void RenderBurn(hgeSprite* Spr_Burn, Mouse_Array* Burn_Positions, bool Click)
     float x2 = xposes[i];
     //float y1 = yposes[prev_index];
     float y2 = yposes[i];
+    fired[i] = fired[i] - hge->Timer_GetDelta();
     if(Calc_Distance(x1, y1, x2, y2) < 150) RenderLine(Spr_Burn, x1, y1, x2, y2);
-    if(x2 != OFFSET && y2 != OFFSET) Par_MeltParticles[i]->FireAt(x1 + 20, y1 + 20);
+    if(x2 != OFFSET && y2 != OFFSET) 
+     {
+      Par_MeltParticles[i] ->FireAt(x1 + 20, y1 + 20);
+      //Par_LightParticles[i]->FireAt(x1 + 20, y1 + 20);
+     }
     //prev_index = i;
     x1 = x2;
     y1 = y2;

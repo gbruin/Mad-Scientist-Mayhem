@@ -1,8 +1,8 @@
 #ifndef HGE_INIT_H
 #define HGE_INIT_H
 //-----------------------------------------------------------------------------------------------------------------------
-int Screen_Width = 1024;
-int Screen_Height = 768;
+int Screen_Width = 1280;
+int Screen_Height = 720;
 float Screen_Ratio = Screen_Width/Screen_Height;
 
 void Load_HGEINI()
@@ -10,12 +10,12 @@ void Load_HGEINI()
   hge = hgeCreate(HGE_VERSION);
   hge->System_SetState(HGE_LOGFILE, "LogFile.txt");
   hge->System_SetState(HGE_TITLE, "Project MadHouse - Alpha");
-  hge->System_SetState(HGE_WINDOWED, false);
+  hge->System_SetState(HGE_WINDOWED, true);
   hge->System_SetState(HGE_SCREENWIDTH, Screen_Width);
   hge->System_SetState(HGE_SCREENHEIGHT, Screen_Height);
   hge->System_SetState(HGE_SCREENBPP, 32);
   hge->System_SetState(HGE_SHOWSPLASH, false);
-  hge->System_SetState(HGE_HIDEMOUSE, true);
+  hge->System_SetState(HGE_HIDEMOUSE, false);
   hge->System_SetState(HGE_FPS, 60);
 }
 

@@ -18,14 +18,21 @@ using namespace std;
 //HGE Data Declarations
 HGE* hge = 0;
 hgeFont* Ariel_Font;
+HTEXTURE   Tex_Tesla1; hgeSprite* Spr_Tesla1;
+HTEXTURE   Tex_Tesla2; hgeSprite* Spr_Tesla2;
+
 HTEXTURE   Tex_BrushedMetal; HTEXTURE   Tex_Scorch; HTEXTURE   Tex_Particles;
 hgeSprite* Spr_BrushedMetal; hgeSprite* Spr_Scorch; hgeSprite* Spr_WeldParticles; hgeSprite* Spr_GlowParticles; hgeSprite* Spr_MeltParticles;
 HTEXTURE   Tex_Blank; hgeSprite* Spr_Blank;
 
 #define NPOS 750
+#define purgetime 10.0
+float purge_timer = purgetime; 
+bool  Keep_msg    = false;
 hgeParticleSystem* Par_WeldParticles;
 hgeParticleSystem* Par_GlowParticles;
 hgeParticleSystem* Par_MeltParticles[NPOS];
+hgeParticleSystem* Par_LightParticles[NPOS];
 
 //Custom
 #include "data\\Hge_Init.h"          //Includes prototype frame and render functions
@@ -37,26 +44,34 @@ hgeParticleSystem* Par_MeltParticles[NPOS];
 #include "data\\Point.h"
 #include "data\\Tesla_Coil.h"
 #include "data\\Lightning.h"
+#include "data\\ObjectRec.h"
 
 //Class Data Declarations
 Mouse_Array* MouseArray;
 bool LClick, LUp;
+bool delay_burn;
+
+//Timed booleans
+float Timer1 = 0; float Timer2 = 0; float Timer3 = 0;
+//Exit Touch Positions
+float LeftX = 50; float RightX  = Screen_Width  - 50;
+float TopY  = 50; float BottomY = Screen_Height - 50;
 
 bool FrameFunc()
 {
+ delay_burn = false;
  hge->Input_GetMousePos(MousePtrX, MousePtrY);
  float delta_time = hge->Timer_GetDelta();
- if(hge->Input_KeyUp(HGEK_Z))  //Purge Function (Works)
-  {
-   for(int i = 0; i < NPOS; i++)
-    {
-      xposes[i] = OFFSET;     
-      yposes[i] = OFFSET;    
-    }
-  }
+ 
+ purge_timer = purge_timer - delta_time;
+ 
  if(hge->Input_KeyUp(HGEK_LBUTTON)) LUp = true; else LUp = false;
  if(hge->Input_GetKeyState(HGEK_LBUTTON))
   {
+   if(update_waypoints(Triangle, Tri_waypoints, delta_time, MousePosX, MousePosY)) //If triangle is drawn, returns true;
+    {
+     
+    } 
    LClick = true;
    Par_WeldParticles->FireAt(MousePosX + 20, MousePosY + 20); //Slight offset
    Par_GlowParticles->FireAt(MousePosX + 20, MousePosY + 20);
@@ -71,7 +86,39 @@ bool FrameFunc()
   }
  Par_WeldParticles->Update(delta_time);
  Par_GlowParticles->Update(delta_time); 
- for(int i = 0; i < NPOS; i++) Par_MeltParticles[i]->Update(delta_time);
+ for(int i = 0; i < NPOS; i++) 
+  {
+   Par_MeltParticles[i] ->Update(delta_time);
+   Par_LightParticles[i]->Update(delta_time);
+  }
+ 
+ //Message Toggle
+ //Corner4 Collision Check
+ if(Calc_Distance(MousePosX, MousePosY, LeftX,  BottomY) < 50 && hge->Input_KeyUp(HGEK_LBUTTON)) 
+  {Keep_msg = !Keep_msg;  delay_burn = true;}
+ 
+ //Purge Condition: Touching all 4 corners of the screen
+ Timer1 = Timer1 - delta_time; Timer2 = Timer2 - delta_time; Timer3 = Timer3 - delta_time; //Updates
+ //Collision Detection
+ //Corner1 Collision Check
+ if(Calc_Distance(MousePosX, MousePosY, LeftX,  TopY) < 50 && LClick)                   {Timer1 = 10; delay_burn = true;} //Collision made
+ //Corner2 Collision Check
+ if(Calc_Distance(MousePosX, MousePosY, RightX, TopY) < 50 && LClick && Timer1 > 0)     {Timer2 = 10; delay_burn = true;} //Collision made    
+ //Corner3 Collision Check
+ if(Calc_Distance(MousePosX, MousePosY, RightX, BottomY) < 50 && LClick && Timer2 > 0)  {Timer3 = 10; delay_burn = true;} //Collision made    
+ 
+ if((Timer1 > 0 && Timer2 > 0 && Timer3 > 0) || purge_timer < 0) //Purge Check.
+ {
+  Timer1 = 0; Timer2 = 0; Timer3 = 0;
+  if(!Keep_msg) 
+   {
+    for(int i = 0; i < NPOS; i++)
+     {
+       xposes[i] = OFFSET;
+       yposes[i] = OFFSET;
+     } 
+   }
+ }    
  if(hge->Input_GetKeyState(HGEK_ESCAPE)) return true;
  MouseArray->update(delta_time);
  return false;
@@ -81,24 +128,31 @@ bool RenderFunc()
 {
  hge->Gfx_BeginScene();
  hge->Gfx_Clear(0xFF000000);
- Spr_BrushedMetal->Render(0, 0);
- if(LClick) Fade_down(Spr_Blank, 1);
- else       Fade_up  (Spr_Blank, 1, 230);
- RenderBurn(Spr_Scorch, MouseArray, LClick);
- Spr_Blank->Render(0, 0);
- for(int i = 0; i < NPOS; i++) Par_MeltParticles[i]->Render();
- Par_GlowParticles->Render();
- Par_WeldParticles->Render();
-// if(LClick) Spr_Blank->Render(0, 0);
+ Spr_Tesla1->Render(100, Screen_Height);
+ Spr_Tesla2->Render(Screen_Width - 100, Screen_Height); 
+ //Spr_BrushedMetal->Render(0, 0);
+ //if(LClick) Fade_down(Spr_Blank, 1);
+ //else       Fade_up  (Spr_Blank, 1, 230);
+ //if(!delay_burn) RenderBurn(Spr_Scorch, MouseArray, LClick);
+ //Spr_Blank->Render(0, 0);
+ for(int i = 0; i < NPOS; i++) 
+  {
+   //Par_LightParticles[i]->Render();
+   Par_MeltParticles[i] ->Render();
+  }
+// Par_GlowParticles->Render();
+// Par_WeldParticles->Render();
+ if(Keep_msg) {Spr_Scorch->RenderEx(LeftX - 50, BottomY - 50, 0, 3.0);}
  //Debugging text checks
  if(false)
  {
-  for(int i = 0; i < array_size; i++)
+  for(int i = 0; i < 7; i++)
    {
-    Ariel_Font->printf(5, 5+ 20*i, HGETEXT_LEFT, "%.3f %.3f %.3f %i", MouseArray->Pos_Array[i].x_pos, MouseArray->Pos_Array[i].y_pos, MouseArray->Pos_Array[i].lifetime, MouseArray->Pos_Array[i].in_use);
+    //Ariel_Font->printf(5, 5+ 20*i, HGETEXT_LEFT, "%.3f %.3f %.3f %i", MouseArray->Pos_Array[i].x_pos, MouseArray->Pos_Array[i].y_pos, MouseArray->Pos_Array[i].lifetime, MouseArray->Pos_Array[i].in_use);
+    Ariel_Font->printf(5, 5+ 20*i, HGETEXT_LEFT, "%.3f", Triangle[i].lifetime);
    }
-  Ariel_Font->printf(1024,  5, HGETEXT_RIGHT, "%.3f %.3f", MousePosX, MousePosY);
-  Ariel_Font->printf(1024, 25, HGETEXT_RIGHT, "Queue Head: %i, Queue Top: %i", MouseArray->top_queue, MouseArray->cur_position);
+  Ariel_Font->printf(1024,  5, HGETEXT_RIGHT, "%.3f %.3f", MousePosX + 20, MousePosY + 20);
+//  Ariel_Font->printf(1024, 25, HGETEXT_RIGHT, "Queue Head: %i, Queue Top: %i", MouseArray->top_queue, MouseArray->cur_position);
  }
  hge->Gfx_EndScene();
  return false;
@@ -112,6 +166,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
   hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
   if(hge->System_Initiate())
    {
+    //Load data
+    //Waypoints for each location on the triangle
+    Triangle[0].x = 520; Triangle[0].y = 200; Triangle[0].radius = 50; Triangle[0].lifetime = 0;
+    Triangle[1].x = 400; Triangle[1].y = 400; Triangle[1].radius = 50; Triangle[1].lifetime = 0;
+    Triangle[2].x = 300; Triangle[2].y = 560; Triangle[2].radius = 50; Triangle[2].lifetime = 0;
+    Triangle[3].x = 520; Triangle[3].y = 560; Triangle[3].radius = 50; Triangle[3].lifetime = 0;
+    Triangle[4].x = 770; Triangle[4].y = 560; Triangle[4].radius = 50; Triangle[4].lifetime = 0;
+    Triangle[5].x = 660; Triangle[5].y = 400; Triangle[5].radius = 50; Triangle[5].lifetime = 0;
+    Triangle[6].x = 520; Triangle[6].y = 200; Triangle[6].radius = 50; Triangle[6].lifetime = 0;
+
     //Load system resources
     MouseArray = new Mouse_Array();
     //Welding particle system
@@ -136,14 +200,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     Par_GlowParticles->info.nEmission  = 50;
     for(int i = 0; i < NPOS; i++) 
      {
-      Par_MeltParticles[i] = new hgeParticleSystem("gfx\\melt1.psi", Spr_MeltParticles);
+      Par_MeltParticles[i]  = new hgeParticleSystem("gfx\\melt1.psi", Spr_MeltParticles);
+      Par_LightParticles[i] = new hgeParticleSystem("gfx\\glow.psi" , Spr_GlowParticles);
+      Par_LightParticles[i]->info.fLifetime = Par_MeltParticles[i]->info.fLifetime;
+      Par_LightParticles[i]->info.nEmission = 3;
+      Par_LightParticles[i]->info.fSizeStart = 5;
+      Par_LightParticles[i]->info.fSizeEnd   = 3;
      }
     
     
     Load_Fonts(Ariel_Font, "fonts\\arial.fnt", 0xFFFFFFFF);
-    Load_Graphic(Tex_BrushedMetal, "gfx\\Brushed Metal.png", Spr_BrushedMetal,  1024, 768);
-    Load_Graphic(Tex_Scorch      , "gfx\\Scorch.png"       , Spr_Scorch      ,    32,  32);
-    Load_Graphic(Tex_Blank       , ""                      , Spr_Blank       ,  1024, 768);
+    Load_Graphic(Tex_Tesla1, "gfx\\Tesla1.png", Spr_Tesla1, 296, 570);
+    Load_Graphic(Tex_Tesla2, "gfx\\Tesla2.png", Spr_Tesla2, 296, 570);
+    Spr_Tesla1->SetHotSpot(0, 570);
+    Spr_Tesla2->SetHotSpot(296, 570);
+    Load_Graphic(Tex_Blank, "" , Spr_Blank,  1024, 768);
     Spr_Blank->SetColor(0x00000000);
     hge->System_Start();
    }
