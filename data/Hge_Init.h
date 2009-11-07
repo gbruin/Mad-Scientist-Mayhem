@@ -1,8 +1,8 @@
 #ifndef HGE_INIT_H
 #define HGE_INIT_H
 //-----------------------------------------------------------------------------------------------------------------------
-int Screen_Width = 1280;
-int Screen_Height = 720;
+int Screen_Width = 1024;
+int Screen_Height = 768;
 float Screen_Ratio = Screen_Width/Screen_Height;
 
 void Load_HGEINI()

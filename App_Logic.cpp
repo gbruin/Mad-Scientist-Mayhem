@@ -87,7 +87,6 @@ bool FrameFunc()
    LClick = false;
    Par_WeldParticles->Stop();                                
    Par_GlowParticles->Stop();   
-//   Par_MeltParticles->Stop();  
   }
  Par_WeldParticles->Update(delta_time);
  Par_GlowParticles->Update(delta_time); 
@@ -133,22 +132,30 @@ bool RenderFunc()
 {
  hge->Gfx_BeginScene();
  hge->Gfx_Clear(0xFF000000);
- Spr_Tesla1->Render(100, Screen_Height);
- Spr_Tesla2->Render(Screen_Width - 100, Screen_Height); 
- //Spr_BrushedMetal->Render(0, 0);
- //if(LClick) Fade_down(Spr_Blank, 1);
- //else       Fade_up  (Spr_Blank, 1, 230);
- //if(!delay_burn) RenderBurn(Spr_Scorch, MouseArray, LClick);
- //Spr_Blank->Render(0, 0);
+ 
+ //Background Work
+ #ifdef madworld
+ Spr_BrushedMetal->Render(0, 0);
+ if(LClick) Fade_down(Spr_Blank, 1);
+ else       Fade_up  (Spr_Blank, 1, 230);
+ if(!delay_burn) RenderBurn(Spr_Scorch, MouseArray, LClick);
+ Spr_Blank->Render(0, 0);
  for(int i = 0; i < NPOS; i++) 
   {
-   //Par_LightParticles[i]->Render();
+   Par_LightParticles[i]->Render();
    Par_MeltParticles[i] ->Render();
   }
-// Par_GlowParticles->Render();
-// Par_WeldParticles->Render();
+ Par_GlowParticles->Render();
+ Par_WeldParticles->Render();
  if(Keep_msg) {Spr_Scorch->RenderEx(LeftX - 50, BottomY - 50, 0, 3.0);}
- //Debugging text checks
+ #endif
+
+ #ifdef tesla
+  Spr_Tesla1->Render(100, Screen_Height);
+  Spr_Tesla2->Render(Screen_Width - 100, Screen_Height); 
+ #endif
+
+ //Debugging text checks 
  if(false)
  {
   for(int i = 0; i < 7; i++)
@@ -157,7 +164,7 @@ bool RenderFunc()
     Ariel_Font->printf(5, 5+ 20*i, HGETEXT_LEFT, "%.3f", Triangle[i].lifetime);
    }
   Ariel_Font->printf(1024,  5, HGETEXT_RIGHT, "%.3f %.3f", MousePosX + 20, MousePosY + 20);
-//  Ariel_Font->printf(1024, 25, HGETEXT_RIGHT, "Queue Head: %i, Queue Top: %i", MouseArray->top_queue, MouseArray->cur_position);
+  //Ariel_Font->printf(1024, 25, HGETEXT_RIGHT, "Queue Head: %i, Queue Top: %i", MouseArray->top_queue, MouseArray->cur_position);
  }
  hge->Gfx_EndScene();
  return false;
@@ -217,6 +224,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     Load_Fonts(Ariel_Font, "fonts\\arial.fnt", 0xFFFFFFFF);
     Load_Graphic(Tex_Tesla1, "gfx\\Tesla1.png", Spr_Tesla1, 296, 570);
     Load_Graphic(Tex_Tesla2, "gfx\\Tesla2.png", Spr_Tesla2, 296, 570);
+    Load_Graphic(Tex_BrushedMetal, "gfx\\Brushed Metal.png", Spr_BrushedMetal, 1024, 768);
+    Load_Graphic(Tex_Scorch,       "gfx\\scorch.png", Spr_Scorch, 32, 32);    
     Spr_Tesla1->SetHotSpot(0, 570);
     Spr_Tesla2->SetHotSpot(296, 570);
     Load_Graphic(Tex_Blank, "" , Spr_Blank,  1024, 768);
