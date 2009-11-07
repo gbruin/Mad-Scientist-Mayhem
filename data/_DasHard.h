@@ -43,6 +43,10 @@
 #define DHE_ERROR_NOTOPEN		-2		// RETURN ERROR
 #define DHE_ERROR_ALREADYOPEN	-12		// RETURN ERROR
 
+HINSTANCE g_dasusbdll = NULL;
+typedef int (*DASHARDCOMMAND)(int, int, unsigned char*);
+DASHARDCOMMAND  DasUsbCommand = NULL;
+int ref_open = 0;
 
 
 typedef struct{
@@ -55,5 +59,6 @@ typedef struct{
 	unsigned int sec;  
 	unsigned int milliseconds;
 } STIME;
+
 
 #endif

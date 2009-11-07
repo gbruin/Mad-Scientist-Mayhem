@@ -39,8 +39,7 @@ int HardDllCommand(int command, int param, unsigned char *bloc)
 	return 0;
 }
 
-
-
+/*
 int main()
 {
 	HardDllOpen();
@@ -56,7 +55,7 @@ int main()
 	}
 	unsigned char dmx[513];
 	dmx[512] = 0;
-	/** POST-INITIALIZATION **/
+	//POST-INITIALIZATION *
 	for(int i = 0; i < 512; i++)
 	{
 		dmx[i] = 250; 
@@ -65,7 +64,7 @@ int main()
 	{
 		cout << "FUCK SEND FAILED";
 	}
-	/** TEAR-DOWN **/
+	//TEAR-DOWN *
 	if(HardDllCommand(DHC_CLOSE, NULL, NULL) != DHE_OK)
 	{
 		cout << "Fuck, cannot close.";
@@ -73,3 +72,4 @@ int main()
 	HardDllCommand(DHC_EXIT, NULL, NULL);
 	HardDllClose();
 }
+*/

@@ -40,6 +40,7 @@ hgeParticleSystem* Par_LightParticles[NPOS];
 #include "data\\System_Tools.h"
 #include "data\\Graphic_Tools.h"
 #include "data\\Buttons.h"
+#include "data\\_DasHard.h"
 #include "data\\Mouse_Array.h"
 #include "data\\Point.h"
 #include "data\\Tesla_Coil.h"
@@ -49,12 +50,44 @@ hgeParticleSystem* Par_LightParticles[NPOS];
 #include "data\\BoltRender.h"
 #include "data\\ObjectRec.h"
 
+//loightfucker, motherfucker
+#include <iostream>
+#include <Windows.h>
 
+void turnLightsOn();
+void turnLightsOff();
+void turnLightsRed();
+
+int HardDllOpen()
+{
+	g_dasusbdll = LoadLibrary("DasHard2006.dll");
+	if (g_dasusbdll)
+		DasUsbCommand  = (DASHARDCOMMAND)::GetProcAddress((HMODULE)g_dasusbdll, "DasUsbCommand");
+	if (DasUsbCommand)
+		return 1;
+	return 0;
+}
+
+int HardDllClose()
+{
+	if (g_dasusbdll!=NULL)
+		return	FreeLibrary(g_dasusbdll);
+	return 0;
+}
+
+int HardDllCommand(int command, int param, unsigned char *bloc)
+{
+	if (DasUsbCommand)
+		return (*DasUsbCommand)(command, param, bloc);
+	return 0;
+}
+/* */
 
 //Class Data Declarations
 Mouse_Array* MouseArray;
 bool LClick, LUp;
 bool delay_burn;
+bool On_Off; float Shine_Time;
 
 //Timed booleans
 float Timer1 = 0; float Timer2 = 0; float Timer3 = 0;
@@ -75,7 +108,11 @@ bool FrameFunc()
   {
    if(update_waypoints(Triangle, Tri_waypoints, delta_time, MousePosX, MousePosY)) //If triangle is drawn, returns true;
     {
-     
+     if(Shine_Time == -1) Shine_Time = 10; //Time to cycle = 10 seconds
+     if(On_Off)turnLightsOn(); else turnLightsRed();
+     Shine_Time = Shine_Time - delta_time;
+     On_Off = !On_Off;
+     if(Shine_Time <  0) Shine_Time = -1;  //Reset
     } 
    LClick = true;
    Par_WeldParticles->FireAt(MousePosX + 20, MousePosY + 20); //Slight offset
@@ -156,7 +193,7 @@ bool RenderFunc()
  #endif
 
  //Debugging text checks 
- if(false)
+ if(true)
  {
   for(int i = 0; i < 7; i++)
    {
@@ -170,6 +207,43 @@ bool RenderFunc()
  return false;
 }
 
+    bool disable_dmx = false;
+
+void turnLightsOn()
+{
+    if(disable_dmx) return;
+	unsigned char dmx[513];
+	dmx[512] = 0;
+	for(int i = 0; i < 512; i++)
+	{
+		dmx[i] = 250; 
+	}
+	HardDllCommand(DHC_DMXOUT, 512, dmx);
+}
+void turnLightsOff()
+{
+    if(disable_dmx) return;
+	unsigned char dmx[513];
+	dmx[512] = 0;
+	for(int i = 0; i < 512; i++)
+	{
+		dmx[i] = 0; 
+	}
+	HardDllCommand(DHC_DMXOUT, 512, dmx);
+}
+void turnLightsRed()
+{
+    if(disable_dmx) return;
+	unsigned char dmx[513];
+	dmx[512] = 0;
+	for(int i = 0; i < 512; i++)
+	{
+		dmx[i] = 0;
+	}
+	dmx[0] = 127;
+	dmx[9] = 255;
+	HardDllCommand(DHC_DMXOUT, 512, dmx);
+}
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
   //Startup
@@ -230,10 +304,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     Spr_Tesla2->SetHotSpot(296, 570);
     Load_Graphic(Tex_Blank, "" , Spr_Blank,  1024, 768);
     Spr_Blank->SetColor(0x00000000);
+    
+    //Light control initialization
+    /**/
+  	HardDllOpen();
+    if(HardDllCommand(DHC_INIT, NULL, NULL) < 0)
+	{
+		//cout << "Fuck.  Cannot init.";
+		disable_dmx = true;
+	}
+	if(disable_dmx || HardDllCommand(DHC_OPEN, NULL, NULL) != DHE_OK)
+	{
+		//cout << "Fuck.  Cannot open.";
+		disable_dmx;
+	}
+	
+    /* */
     hge->System_Start();
    }
   //Shutdown
   hge->System_Shutdown();
   hge->Release();
+  /**/
+	if(disable_dmx || HardDllCommand(DHC_CLOSE, NULL, NULL) != DHE_OK)
+	{
+ disable_dmx = true;
+		//cout << "Fuck, cannot close.";
+	}
+	if(!disable_dmx)
+	{
+	HardDllCommand(DHC_EXIT, NULL, NULL);
+	HardDllClose();
+}
+	/* */
   return 0;
 }
