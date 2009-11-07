@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -40,11 +41,15 @@ hgeParticleSystem* Par_LightParticles[NPOS];
 #include "data\\Graphic_Tools.h"
 #include "data\\Buttons.h"
 #include "data\\Mouse_Array.h"
-#include "data\\BurnRender.h"
 #include "data\\Point.h"
 #include "data\\Tesla_Coil.h"
 #include "data\\Lightning.h"
+#include "data\\Lightning2.h"
+#include "data\\BurnRender.h"
+#include "data\\BoltRender.h"
 #include "data\\ObjectRec.h"
+
+
 
 //Class Data Declarations
 Mouse_Array* MouseArray;

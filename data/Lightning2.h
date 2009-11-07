@@ -1,14 +1,16 @@
-#define bolt_length 256
+#define num_points 10
+#ifndef height_step
 #define height_step .0035
+#endif
 
-class Lightning
+class Lightning2
 {
  public:
   vector<Point> point;
   int length;
   
-  Lightning(/*Telsa_Coil coil*/);
-  ~Lightning();
+  Lightning2(/*Telsa_Coil coil*/);
+  ~Lightning2();
   void update();
   bool isdead();
   
@@ -19,42 +21,39 @@ class Lightning
   void calculate(int a, int b, int depth);
 };
 
-Lightning::Lightning(/*Telsa_Coil coil*/) : length(bolt_length), height(0)//, sticky(coil)
+Lightning2::Lightning2(/*Telsa_Coil coil*/) : length(num_points), height(0)//, sticky(coil)
 {
-  vector<Point> new_points(bolt_length);
+  vector<Point> new_points(num_points);
   point = new_points;
   // Stick the first point to the coil
   point[0].x = 0.2f * 1024;
   //point[0].x = sticky.pos;
+  point[0].y = 0;
   
   // Stick the last point to the other coil
   point[length-1].x = 0.8f * 1024;
   //point[length-1].x = 1 - sticky.pos;
-  
-  // Start at height = 0
-  point[0].y = 0;
   point[length-1].y = 0;
   
   // Fill in the middle points
   for (int i = 1; i < length-1; i++)
   {
-      point[i].y = point[0].y + (point[length-1].y - point[0].y) * (float) i / (0-length+1);
       point[i].x = point[0].x + (point[length-1].x - point[0].x) * (float) i / (length-1);
+      point[i].y = point[0].y + (point[length-1].y - point[0].y) * (float) i / (length-1);
   }
 }
 
-Lightning::~Lightning()
+Lightning2::~Lightning2()
 {
 }
 
-void Lightning::update()
+void Lightning2::update()
 {
      if (height > .999)
         height=0;
 
-     bool sticky = true;
      // Case: touched
-     if (sticky)
+     if (hge->Input_GetKeyState(HGEK_LBUTTON))
      {
          // Stick the bolt to the mouse
          float mx;
@@ -67,6 +66,7 @@ void Lightning::update()
      {
          point[0].x = 0.2f * 1024;
          point[0].y = 768 * (1-height);
+         
      }
      // Case: untouched, move the other end of the bolt up
      point[length-1].x = 0.8f * 1024;
@@ -74,20 +74,24 @@ void Lightning::update()
      
      // Update all the points in between
      for (int i = 1; i < length-1; i++)
-         point[i].x = point[0].x + (point[length-1].x - point[0].x) * i / (length-1);
+     {
+         point[i].x = point[0].x + (point[length-1].x - point[0].x) * (float) i / (length-1);
+         float offsety = 60.0f * cos((float) M_PI * ((float) i / (length-1) - 0.5f));
+         point[i].y = point[0].y + (point[length-1].y - point[0].y) * (float) i / (length-1) - offsety;
+     }
+     
      // Calculate y values recursiveley
-     calculate(0, length-1, 8);
+     //calculate(0, length-1, 8);
 
-
-  // Move linearly to .75, then deaccelerate 
-  if (height <= .75 )
-     height += height_step;
-  else
-     height += (1 - height) * height_step / (1 - 0.75f);
-  //height = .5;
+     // Move linearly to .75, then deaccelerate
+     if (height <= .75 )
+         height += height_step;
+     else
+         height += (1 - height) * height_step / (1 - 0.75f);
+     height = .5;
 }
 
-void Lightning::calculate(int a, int b, int depth)
+void Lightning2::calculate(int a, int b, int depth)
 {
     if (depth == 0)
     {
