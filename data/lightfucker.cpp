@@ -9,12 +9,12 @@ using namespace std;
 /////////////////////// DASHARD.DLL   USB ////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 #include "_DasHard.h"
-
+/**/
 HINSTANCE g_dasusbdll = NULL;
 typedef int (*DASHARDCOMMAND)(int, int, unsigned char*);
 DASHARDCOMMAND  DasUsbCommand = NULL;
 int ref_open = 0;
-
+/**/
 int HardDllOpen()
 {
 	g_dasusbdll = LoadLibrary("DasHard2006.dll");

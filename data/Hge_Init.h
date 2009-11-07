@@ -1,8 +1,15 @@
 #ifndef HGE_INIT_H
 #define HGE_INIT_H
 //-----------------------------------------------------------------------------------------------------------------------
+#ifdef madworld
 int Screen_Width = 1024;
 int Screen_Height = 768;
+#endif
+#ifdef tesla
+int Screen_Width = 1280;
+int Screen_Height = 720;
+#endif
+
 float Screen_Ratio = Screen_Width/Screen_Height;
 
 void Load_HGEINI()

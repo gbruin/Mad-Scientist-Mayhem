@@ -190,10 +190,11 @@ bool RenderFunc()
  #ifdef tesla
   Spr_Tesla1->Render(100, Screen_Height);
   Spr_Tesla2->Render(Screen_Width - 100, Screen_Height); 
+  RenderBolts();
  #endif
 
  //Debugging text checks 
- if(true)
+ if(false)
  {
   for(int i = 0; i < 7; i++)
    {
@@ -251,7 +252,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
   hge->System_SetState(HGE_FRAMEFUNC,  FrameFunc);
   hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
   if(hge->System_Initiate())
-   {
+  {
+    for (int i = 0; i < numbolts; i++)
+ {  bolt[0][i].height = 0;
+    bolt[1][i].height = .64418;
+    bolt[2][i].height = .771149f;
+    bolt[3][i].height = .794658f;
+}
+
     //Load data
     //Waypoints for each location on the triangle
     Triangle[0].x = 520; Triangle[0].y = 200; Triangle[0].radius = 50; Triangle[0].lifetime = 0;
