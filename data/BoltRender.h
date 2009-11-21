@@ -5,8 +5,7 @@ Lightning2 bolt[4][numbolts];
 void RenderBolts()
 {
      for (int b = 0; b < 3; b++)
-     {
-     for (int n = 0; n < numbolts; n++)
+         for (int n = 0; n < numbolts; n++)
      {
          int res = 16;
          int x1, y1, x2, y2;
@@ -15,8 +14,6 @@ void RenderBolts()
          {
              float angle = rand()%360*(float)M_PI/180;
              float mag = 0.4f * (4 * i * (bolt[b][n].length-1) - i * i * 4);
-             //Calc_Distance(x, y, (a.x+b.x)/2, (a.y+b.y)/2)
-             //float mag = 20 * cos((float) M_PI * ((float) i / (bolt[b][n].length-1) - 0.5f));
              rendered_bolt[res * i].x = bolt[b][n].point[i].x + mag * cos(angle);
              rendered_bolt[res * i].y = bolt[b][n].point[i].y + mag * sin(angle);
              if (i == 0)
@@ -32,11 +29,9 @@ void RenderBolts()
              }
          }
          for (int i = 0; i < res * (bolt[b][n].length-1); i++)
-         {
              hge->Gfx_RenderLine(rendered_bolt[i].x, rendered_bolt[i].y,
                                  rendered_bolt[i+1].x, rendered_bolt[i+1].y, 0xFFEEEEFF - 0x33333300 * n, 1.0f);
-         }
          bolt[b][n].update();
      }
-     }
+         }
 }
